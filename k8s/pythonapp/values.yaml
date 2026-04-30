@@ -1,0 +1,64 @@
+replicaCount: 3
+
+secrets:
+  username: "placeholder-user"
+  password: "placeholder-password"
+
+environment: "dev"
+logLevel: "INFO"
+
+image:
+  repository: aidarsarvartdinov/pythonapp
+  tag: "v1.1"
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 5000
+  nodePort: 30080
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 5000
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 5000
+  initialDelaySeconds: 5
+  periodSeconds: 3
+
+env:
+  - name: HOST
+    value: "0.0.0.0"
+  - name: PORT
+    value: "5000"
+  - name: DATA_DIR
+    value: "/data"
+
+persistence:
+  enabled: true
+  size: 100Mi
+  storageClass: ""
+
+vault:
+  enabled: false
+
+rollout:
+  enabled: false
+  strategy: canary
+  trigger: "v1"
+  blueGreen:
+    autoPromotionEnabled: false
